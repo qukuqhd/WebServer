@@ -1,25 +1,8 @@
-/**
- * @file buffer.hpp
- * @author {gangx} ({gangx6906@gmail.com})
- * @brief 
- * @version 0.1
- * @date 2024-05-03
- * 
- * @copyright Copyright (c) 2024
- * 
- */
-#pragma once
-#include <atomic>
-#include <cstddef>
-#include <sys/types.h>
-#include <vector>
-#include <string>
-#ifndef _BUFFER_HPP_
-#define _BUFFER_HPP_
-/**
- * @brief 字符缓冲类
- * 
- */
+# 缓冲类
+
+支持了基本的缓冲的读写拷贝操作
+
+```cpp
 class Buffer{
     public:
         /**
@@ -151,8 +134,8 @@ class Buffer{
          * @param len 
          */
         void MakeSpace_(size_t len);
-        std::vector<char> buffer_;//缓冲存储的容器
-        std::atomic<std::size_t> read_pos_;//读取位置原子变量
-        std::atomic<std::size_t> write_pos_;//写入位置原子变量
+        std::vector<char> buffer_;//实际缓存存储的容器
+        std::atomic<std::size_t> read_pos_;//原子变量读取位置
+        std::atomic<std::size_t> write_pos_;//原子变量写入位置
 };
-#endif
+```
