@@ -3,6 +3,7 @@
 build/
 .vscode/
 lib/
+bin/
 # MacOS Cache
 .DS_Store
 
