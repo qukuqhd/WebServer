@@ -1,6 +1,0 @@
-[
-{
-  "directory": "/home/mina/workshop/ccPro/xmakeTest",
-  "arguments": ["/usr/sbin/gcc", "-c", "-m64", "-g", "-O0", "-I.", "-o", "build/.objs/main/linux/x86_64/debug/main/main.cpp.o", "main/main.cpp"],
-  "file": "main/main.cpp"
-}]
