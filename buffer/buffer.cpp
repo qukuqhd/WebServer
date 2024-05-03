@@ -154,7 +154,7 @@ ssize_t Buffer::WriteFile(FILE *fp) {
 
  void Buffer::MakeSpace_(size_t len) {
    if (WriteableBytes() + PrependableBytes() <
-       len) { // 缓存整个的空间不足就考虑孔融
+       len) { // 缓存整个的空间不足就考虑扩容
      buffer_.resize(write_pos_ + len);
    } else { // 缓存的空间足够就进行数据的移动
      size_t readable = ReadableBytes();
