@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <cstring>
 #include "sys/uio.h"
+#include <iostream>
 Buffer::Buffer(size_t initBufferSize):buffer_(initBufferSize),read_pos_(0),write_pos_(0){
 
 }
@@ -147,21 +148,19 @@ ssize_t Buffer::WriteFile(FILE *fp) {
     return write_size;
  }
 
-char* Buffer::BeginPtr_(){
-    return &*buffer_.begin();
-}
+ char *Buffer::BeginPtr_() { return &*buffer_.begin(); }
 
-const char* Buffer::BeginPtr_() const{
-    return &*buffer_.begin();
-}
+ const char *Buffer::BeginPtr_() const { return &*buffer_.begin(); }
 
-void Buffer::MakeSpace_(size_t len){
-    if(WriteableBytes() + PrependableBytes() < len){//缓存整个的空间不足就考虑孔融
-        buffer_.resize(write_pos_ + len);
-    }else{//缓存的空间足够就进行数据的移动
-        size_t readable = ReadableBytes();
-        std::copy(BeginPtr_() + read_pos_,BeginPtr_() + write_pos_,BeginPtr_());//拷贝数据到缓存的开始
-        read_pos_ = 0;//读取位置归零
-        write_pos_ = read_pos_ + readable;//写入位置为当前缓存数据的长度
-    }
+ void Buffer::MakeSpace_(size_t len) {
+   if (WriteableBytes() + PrependableBytes() <
+       len) { // 缓存整个的空间不足就考虑孔融
+     buffer_.resize(write_pos_ + len);
+   } else { // 缓存的空间足够就进行数据的移动
+     size_t readable = ReadableBytes();
+     std::copy(BeginPtr_() + read_pos_, BeginPtr_() + write_pos_,
+               BeginPtr_());            // 拷贝数据到缓存的开始
+     read_pos_ = 0;                     // 读取位置归零
+     write_pos_ = read_pos_ + readable; // 写入位置为当前缓存数据的长度
+   }
 }
