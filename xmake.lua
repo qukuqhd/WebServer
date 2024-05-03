@@ -1,16 +1,25 @@
 add_rules("mode.debug", "mode.release")
 add_includedirs("./")
 add_linkdirs("./lib")
+
 target("webApp")
+
+    target("buffer")
+        set_kind("static")
+        add_files("buffer/*.cpp")
+        set_targetdir("lib")
+    target_end()
+    target("log")
+        set_kind("static")
+        add_files("log/*.cpp")
+        set_targetdir("lib")
+    target_end()
     set_kind("binary")
     add_files("main/*.cpp") 
     set_targetdir("bin")
     add_links("buffer")
+target_end()
 
-target("buffer")
-    set_kind("static")
-    add_files("buffer/*.cpp")
-    set_targetdir("lib")
 --
 -- If you want to known more usage about xmake, please see https://xmake.io
 --
