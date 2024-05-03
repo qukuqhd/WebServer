@@ -11,6 +11,7 @@
 #pragma once
 #include <atomic>
 #include <cstddef>
+#include <cstdio>
 #include <sys/types.h>
 #include <vector>
 #include <string>
@@ -142,6 +143,20 @@ class Buffer{
          * @return ssize_t 
          */
         ssize_t WriteFd(int fd, int* savedErrno);
+        /**
+         * @brief 读取文件指针内容到缓存
+         * 
+         * @param fp 
+         * @return ssize_t 
+         */
+        ssize_t ReadFile(FILE* fp);
+        /**
+         * @brief 写入缓存内容到文件指针的文件
+         * 
+         * @param fp 
+         * @return ssize_t 
+         */
+        ssize_t WriteFile(FILE*fp);
     private:
         char* BeginPtr_();
         const char* BeginPtr_() const;

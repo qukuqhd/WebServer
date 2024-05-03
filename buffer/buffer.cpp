@@ -127,6 +127,26 @@ ssize_t Buffer::WriteFd(int fd,int* savedErrno){
     return len;
 }
 
+ssize_t Buffer::ReadFile(FILE *fp) {     
+    char buff[65536];
+    int index = 0;
+    while (true)
+    {
+        int character = fgetc(fp);
+        if(character==EOF){
+            break;
+        }
+        buff[index++] = character;
+    }
+    Append(buff,index); 
+    return index;
+}
+
+ssize_t Buffer::WriteFile(FILE *fp) { 
+    size_t write_size =  fwrite(BeginPtr_()+write_pos_,1,ReadableBytes(),fp);
+    return write_size;
+ }
+
 char* Buffer::BeginPtr_(){
     return &*buffer_.begin();
 }
