@@ -19,18 +19,18 @@ Buffer::Buffer(size_t initBufferSize):buffer_(initBufferSize),read_pos_(0),write
 
 }
 size_t Buffer::ReadableBytes() const{
-    return write_pos_ - read_pos_;
+    return write_pos_ - read_pos_;//返回可以写的位置和读的位置之间的长度
 }
 
 size_t Buffer::WriteableBytes() const{
-    return buffer_.size() - write_pos_;
+    return buffer_.size() - write_pos_;//返回现在缓存的大小减去写入的位置
 }
 
 size_t Buffer::PrependableBytes() const{
-    return read_pos_;
+    return read_pos_;//返回读取的位置
 }
 const char* Buffer::Peek() const{
-    return BeginPtr_() + read_pos_;
+    return BeginPtr_() + read_pos_;//返回缓存开始地址加上读取的位置
 }
 
 void Buffer::Retrieve(size_t len){
@@ -44,7 +44,8 @@ void Buffer::RetrieveUntil(const char* end){
 }
 
 void Buffer::RetrieveAll(){
-    bzero(&buffer_[0], buffer_.size());
+    bzero(&buffer_[0], buffer_.size());//清空缓存的内容
+    //初始化读写位置
     read_pos_ = 0;
     write_pos_ = 0;
 }
@@ -56,31 +57,31 @@ std::string Buffer::RetrieveAllToStr(){
 }
 
 const char* Buffer::BeginWriteConst() const{
-    return BeginPtr_() + write_pos_;
+    return BeginPtr_() + write_pos_;//获取写位置的指针
 }
 
 char* Buffer::BeginWrite(){
-    return BeginPtr_() + write_pos_;
+    return BeginPtr_() + write_pos_;//获取写位置的指针
 }
 
 void Buffer::HasWritten(size_t len){
-    write_pos_ += len;
+    write_pos_ += len;//已经写入修改写的位置
 }
 
 void Buffer::Append(const std::string& str){
-    Append(str.data(),str.size());
+    Append(str.data(),str.size());//添加字符串到缓存
 }
 
 void Buffer::Append(const char* str,size_t len){
-    assert(str);
-    EnsureWriteable(len);
-    std::copy(str,str + len, BeginWrite());
-    HasWritten(len);
+    assert(str);//断言判断
+    EnsureWriteable(len);//确保缓存空间足够写入
+    std::copy(str,str + len, BeginWrite());//拷贝字符串到缓存写入的开始地址
+    HasWritten(len);//已经写入修改写入位置
 }
 
 void Buffer::Append(const void* data,size_t len){
-    assert(data);
-    Append(static_cast<const char*>(data),len);
+    assert(data);//断言判断
+    Append(static_cast<const char*>(data),len);//转换为字符指针进行写入
 }
 
 void Buffer::Append(const Buffer& buff){
@@ -88,26 +89,27 @@ void Buffer::Append(const Buffer& buff){
 }
 
 void Buffer::EnsureWriteable(size_t len){
-    if(WriteableBytes() < len){
+    if(WriteableBytes() < len){//可以写入的长度小就进行扩容
         MakeSpace_(len);
     }
-    assert(WriteableBytes() >= len);
+    assert(WriteableBytes() >= len);//断言判断扩容之后的可写长度足够
 }
 
 ssize_t Buffer::ReadFd(int fd,int* savedErrno){
     char buff[65536];
     struct iovec iov[2];
     const size_t writable = WriteableBytes();
-    iov[0].iov_base = BeginPtr_() + write_pos_;
+    /**进行IO读写的分散**/
+    iov[0].iov_base = BeginPtr_() + write_pos_;//写入位置的指针作为缓存开始
     iov[0].iov_len = writable;
-    iov[1].iov_base = buff;
+    iov[1].iov_base = buff;//以缓存类的开始作为开始
     iov[1].iov_len = sizeof(buff);
-    const ssize_t len = readv(fd,iov,2);
-    if(len < 0){
+    const ssize_t len = readv(fd,iov,2);//分聚读取文件描述符的内容到
+    if(len < 0){//判断是否读取错误
         *savedErrno = errno;
-    }else if(static_cast<size_t>(len) <= writable){
+    }else if(static_cast<size_t>(len) <= writable){//读取的内容全部到了缓存类里面了
         write_pos_ += len;
-    }else{
+    }else{//有数据读取到了临时的缓存变量里面了
         write_pos_ = buffer_.size();
         Append(buff,len - writable);
     }
@@ -115,13 +117,13 @@ ssize_t Buffer::ReadFd(int fd,int* savedErrno){
 }   
 
 ssize_t Buffer::WriteFd(int fd,int* savedErrno){
-    size_t writeable = WriteableBytes();
-    ssize_t len = write(fd,Peek(),writeable);
-    if(len <= 0){
+    size_t read_size = ReadableBytes();//获取可以读取缓存的长度
+    ssize_t len = write(fd,Peek(),read_size);//把缓存内容写入到文件
+    if(len <= 0){//写入失败
         *savedErrno = errno;
         return len;
     }
-    write_pos_ += len;
+    read_pos_ += len;//读取位置修改
     return len;
 }
 
@@ -134,12 +136,12 @@ const char* Buffer::BeginPtr_() const{
 }
 
 void Buffer::MakeSpace_(size_t len){
-    if(WriteableBytes() + PrependableBytes() < len){
+    if(WriteableBytes() + PrependableBytes() < len){//缓存整个的空间不足就考虑孔融
         buffer_.resize(write_pos_ + len);
-    }else{
+    }else{//缓存的空间足够就进行数据的移动
         size_t readable = ReadableBytes();
-        std::copy(BeginPtr_() + read_pos_,BeginPtr_() + write_pos_,BeginPtr_());
-        read_pos_ = 0;
-        write_pos_ = read_pos_ + readable;
+        std::copy(BeginPtr_() + read_pos_,BeginPtr_() + write_pos_,BeginPtr_());//拷贝数据到缓存的开始
+        read_pos_ = 0;//读取位置归零
+        write_pos_ = read_pos_ + readable;//写入位置为当前缓存数据的长度
     }
 }
