@@ -22,7 +22,7 @@ target("webApp")
     set_kind("binary")
     add_files("main/*.cpp") 
     set_targetdir("bin")
-    add_links("buffer")
+    add_links("buffer","pool","log")
 target_end()
 
 --
