@@ -62,9 +62,9 @@ class Log{
     do\
     {\
         Log *log = Log::Instance();\
-        if(log->isOpen()&&log->GetLevel()<=level){\
-            log->write(level,format,##__VA_ARGS__)\
-            log->flush()\
+        if(log->IsOpen()&&log->GetLevel()<=level){\
+            log->write(level,format,##__VA_ARGS__);\
+            log->flush();\
         }\
     } while (0);
 #define LOG_DEBUG(format,...)do{LOG_BASE(DEBUG,format,##__VA_ARGS__)} while (0);
